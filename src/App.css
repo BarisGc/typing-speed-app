@@ -1,6 +1,26 @@
 /* General */
+html, body {
+    background-color: #212529;
+}
+
+button:focus, button:active {
+    box-shadow: none !important;
+    outline: none !important;
+
+}
+
+.form-control:focus, .form-control:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border: none
+}
 
 /* GoalTextArea */
 .checking {
     background-color: gray;
+}
+
+/* ResultModal */
+.boldValues {
+    font-weight: 700
 }

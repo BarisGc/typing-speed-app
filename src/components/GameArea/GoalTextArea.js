@@ -1,18 +1,10 @@
-import { Col, FloatingLabel, Form, Row } from 'react-bootstrap'
-import { useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { goalText, userInputText, goalTextWordQueue, goalTextLineQueue, goalTextWordQueueValue } from '../../redux/typingSpeedTextSlice';
+import { useSelector } from 'react-redux';
+import { Col, Row } from 'react-bootstrap'
 
 function GoalTextArea() {
-  // Selectors & States
-  const dispatch = useDispatch();
-  const goalTextArr = useSelector(goalText);
-  const userInputTextValue = useSelector(userInputText);
-  const goalTextLineQueueValue = useSelector(goalTextLineQueue);
-  const goalTextWordQueueValue = useSelector(goalTextWordQueue);
-
-  console.log("goalTextLineQueueValue", goalTextLineQueueValue)
-  console.log("goalTextWordQueueValue", goalTextWordQueueValue)
+  const goalTextArr = useSelector((state) => state.typingSpeedText.goalText);
+  const goalTextLineQueueValue = useSelector((state) => state.typingSpeedText.goalTextLineQueue);
+  const goalTextWordQueueValue = useSelector((state) => state.typingSpeedText.goalTextWordQueue);
 
   // "textValidationDefiner" function
   const textValidationDefiner = (element) => {
@@ -36,11 +28,6 @@ function GoalTextArea() {
     }
   }
 
-
-
-
-
-  console.log("displayedGoalTextLinesArrayForMdandLgScreens", displayedGoalTextLinesArrayForMdandLgScreens)
   return (
     <>
       <Row xs={2} md={6} className=''>

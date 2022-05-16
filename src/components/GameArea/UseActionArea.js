@@ -1,34 +1,22 @@
-import React, { useEffect } from 'react'
-import { Col, InputGroup, FormControl, Button } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { userInputText, userTime, changeUserInputText, goalTextWordQueue, goalText, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, goalTextLineQueue, gameStatus, changeGameStatus, changeUserTime } from '../../redux/typingSpeedTextSlice'
+import { changeUserInputText, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, changeGameStatus, changeUserTime, randomArrayMaker } from '../../redux/typingSpeedTextSlice'
+import { InputGroup, FormControl, Button } from 'react-bootstrap'
 
 function UseActionArea() {
     const dispatch = useDispatch();
-    const goalTextArr = useSelector(goalText);
-    const userInputTextValue = useSelector(userInputText);
-    const userTimeValue = useSelector(userTime);
-    const gameStatusValue = useSelector(gameStatus);
-    const goalTextWordQueueValue = useSelector(goalTextWordQueue);
-    const goalTextLineQueueValue = useSelector(goalTextLineQueue);
-
-    console.log("userInputTextValue", userInputTextValue)
-    console.log("gameStatusValue", gameStatusValue)
-
-    const handleUserInputText = (userInputText) => {
-        dispatch(changeUserInputText(userInputText))
-        dispatch(changeGameStatus('playing'))
-        timer();
-    }
+    const goalTextArr = useSelector((state) => state.typingSpeedText.goalText);
+    const userInputTextValue = useSelector((state) => state.typingSpeedText.userInputText);
+    const userTimeValue = useSelector((state) => state.typingSpeedText.userTime);
+    const gameStatusValue = useSelector((state) => state.typingSpeedText.gameStatus);
+    const goalTextWordQueueValue = useSelector((state) => state.typingSpeedText.goalTextWordQueue);
+    const goalTextLineQueueValue = useSelector((state) => state.typingSpeedText.goalTextLineQueue);
+    const [timeLeft, setTimeLeft] = useState(null);
 
     useEffect(() => {
         let formattedGoalTextArr = []
-        function hasWhiteSpace(s) {
-            return (/\s/).test(s);
-        }
         if (userInputTextValue) {
-
-            if (hasWhiteSpace(userInputTextValue)) {
+            if (userInputTextValue[userInputTextValue.length - 1] == ' ') {
                 for (let i = 0; i < goalTextArr.length; i++) {
                     if (i == goalTextWordQueueValue - 1) {
                         if (goalTextArr[i].text == (userInputTextValue.trim())) {
@@ -78,36 +66,67 @@ function UseActionArea() {
             }
 
             dispatch(changeGoalTextDisplay(formattedGoalTextArr))
-            console.log("formattedgoaltext", formattedGoalTextArr)
+            // console.log("formattedgoaltext", formattedGoalTextArr)
         }
     }, [userInputTextValue])
 
-    // Game Time
-    let interval = '';
-    const timer = () => {
-        interval = setInterval(function () {
-            console.log("userTimeValue", userTimeValue)
-            dispatch(changeUserTime());
-        }, 1000);
-    };
-
-    useEffect(() => {
-        if (userTimeValue <= 0) {
-            clearInterval(interval);
-            dispatch(changeGameStatus('reset'));
+    const handleUserInputText = (event) => {
+        dispatch(changeUserInputText(event.target.value))
+        if (gameStatusValue == 'reset') {
+            dispatch(changeGameStatus('playing'));
+            setTimeLeft(30)
+            console.log("handle girdi mi?")
         }
-    }, [userTimeValue, dispatch]);
+    }
+
+    // Game Time
+    useEffect(() => {
+        if (gameStatusValue == 'playing') {
+            if (timeLeft === 0) {
+                console.log("TIME LEFT IS 0");
+                dispatch(changeGameStatus('finished'));
+                setTimeLeft(null)
+            }
+
+            // exit early when we reach 0
+            if (!timeLeft) return;
+
+            // save intervalId to clear the interval when the
+            // component re-renders
+            const intervalId = setInterval(() => {
+                setTimeLeft(timeLeft - 1);
+                dispatch(changeUserTime(timeLeft - 1));
+            }, 1000);
+
+            // clear interval on re-render to avoid memory leaks
+            return () => clearInterval(intervalId);
+            // add timeLeft as a dependency to re-rerun the effect
+            // when we update it
+        }
+    }, [dispatch, gameStatusValue, timeLeft]);
+
+    const handleResetButton = () => {
+        dispatch(changeGameStatus('reset'));
+        dispatch(changeUserTime(30));
+        dispatch(changeGoalTextDisplay(randomArrayMaker()))
+        dispatch(changeUserInputText(''))
+        dispatch(changeGoalTextWordQueue(1))
+        dispatch(changeGoalTextLineQueue(1))
+    }
 
     return (
         <>
             <InputGroup>
                 <FormControl
-                    placeholder="Counter Starts When First Character is Typed"
+                    autoFocus
+                    placeholder="Press Space to Check the Word"
                     value={userInputTextValue}
-                    onChange={(e) => handleUserInputText(e.target.value)}
+                    onChange={(event) => handleUserInputText(event)}
                 />
-                <InputGroup.Text id="basic-addon1">{userTimeValue}</InputGroup.Text>
-                <Button variant="outline-secondary">Reset the Game</Button>
+                <InputGroup.Text className={
+                    `${userTimeValue < 10 ? 'bg-warning' : 'bg-primary'} text-white border-0`
+                } id="basic-addon1">{String(userTimeValue).padStart(2, 0)}{` sec`}</InputGroup.Text>
+                <Button variant="secondary" onClick={() => handleResetButton()}>Reset the Game</Button>
             </InputGroup>
         </>
     )
