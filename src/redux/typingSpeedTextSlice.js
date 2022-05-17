@@ -4,20 +4,26 @@ var shuffle = require('shuffle-array')
 
 export const randomArrayMaker = () => {
     let goalTextArray = [];
-    for (let i = 1; i < 1000; i++) {
-        goalTextArray.push(cities[i - 1].name);
+    let _12wordsControlArray = []
+    for (let i = 1; i < 1801; i++) {
+        _12wordsControlArray.push(cities[i - 1].name);
+        if ((i - 1 + 12) % 12 === 0) {
+            goalTextArray.push(_12wordsControlArray)
+            _12wordsControlArray = []
+        }
     }
 
     let shuffledGoalTextArray = shuffle(goalTextArray, { 'copy': true })
     let formattedShuffledGoalTextArray = shuffledGoalTextArray.map((item) => {
-        return {
-            text: item.match(/\S/g).join(''),
-            validation: 'none'
-        }
+        return item.map((subItem) => {
+            return {
+                text: subItem.match(/\S/g).join(''),
+                validation: 'none'
+            }
+        })
     })
     return formattedShuffledGoalTextArray
 }
-
 export const typingSpeedTextSlice = createSlice({
     name: 'typingSpeedText',
     initialState: {
@@ -25,7 +31,7 @@ export const typingSpeedTextSlice = createSlice({
         goalTextWordQueue: 1,
         goalTextLineQueue: 1,
         userInputText: '',
-        userTime: 30,
+        userTime: 160,
         gameStatus: 'reset',
     },
     reducers: {
@@ -39,7 +45,7 @@ export const typingSpeedTextSlice = createSlice({
             state.gameStatus = action.payload;
         },
         changeGoalTextDisplay: (state, action) => {
-            state.goalText = action.payload;
+            state.goalText[state.goalTextLineQueue - 1] = action.payload;
         },
         changeGoalTextWordQueue: (state, action) => {
             state.goalTextWordQueue = action.payload;

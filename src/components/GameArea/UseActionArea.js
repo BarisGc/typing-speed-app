@@ -14,57 +14,66 @@ function UseActionArea() {
     const [timeLeft, setTimeLeft] = useState(null);
 
     useEffect(() => {
+        if (goalTextWordQueueValue - 1 != 0 && (goalTextWordQueueValue - 1) % 12 == 0) {
+            dispatch(changeGoalTextLineQueue(goalTextLineQueueValue + 1))
+            dispatch(changeGoalTextWordQueue(1))
+        }
         let formattedGoalTextArr = []
         if (userInputTextValue) {
             if (userInputTextValue[userInputTextValue.length - 1] == ' ') {
-                for (let i = 0; i < goalTextArr.length; i++) {
-                    if (i == goalTextWordQueueValue - 1) {
-                        if (goalTextArr[i].text == (userInputTextValue.trim())) {
+                for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
+                    for (let i = 0; i < goalTextArr[j].length; i++) {
+                        if (i == goalTextWordQueueValue - 1) {
+                            if (goalTextArr[j][i].text == (userInputTextValue.trim())) {
+                                formattedGoalTextArr.push({
+                                    text: goalTextArr[j][i].text,
+                                    validation: 'true',
+                                })
+                            } else {
+                                formattedGoalTextArr.push({
+                                    text: goalTextArr[j][i].text,
+                                    validation: 'false',
+                                })
+                            }
+                        } else if (i > goalTextWordQueueValue) {
                             formattedGoalTextArr.push({
-                                text: goalTextArr[i].text,
-                                validation: 'true',
+                                text: goalTextArr[j][i].text,
+                                validation: 'none',
                             })
                         } else {
-                            formattedGoalTextArr.push({
-                                text: goalTextArr[i].text,
-                                validation: 'false',
-                            })
+                            formattedGoalTextArr.push(
+                                goalTextArr[j][i]
+                            )
                         }
-                    } else if (i > goalTextWordQueueValue) {
-                        formattedGoalTextArr.push({
-                            text: goalTextArr[i].text,
-                            validation: 'none',
-                        })
-                    } else {
-                        formattedGoalTextArr.push(
-                            goalTextArr[i]
-                        )
                     }
                 }
                 dispatch(changeUserInputText(''))
                 dispatch(changeGoalTextWordQueue(goalTextWordQueueValue + 1))
-                if ((goalTextWordQueueValue) % 24 == 0) dispatch(changeGoalTextLineQueue(goalTextLineQueueValue + 2))
+
 
             } else {
-                for (let i = 0; i < goalTextArr.length; i++) {
-                    if (i == goalTextWordQueueValue - 1) {
-                        formattedGoalTextArr.push({
-                            text: goalTextArr[i].text,
-                            validation: 'checking',
-                        })
-                    } else if (i > goalTextWordQueueValue) {
-                        formattedGoalTextArr.push({
-                            text: goalTextArr[i].text,
-                            validation: 'none',
-                        })
-                    } else {
-                        formattedGoalTextArr.push(
-                            goalTextArr[i]
-                        )
+                for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
+                    for (let i = 0; i < goalTextArr[j].length; i++) {
+                        if (i == goalTextWordQueueValue - 1) {
+                            formattedGoalTextArr.push({
+                                text: goalTextArr[j][i].text,
+                                validation: 'checking',
+                            })
+                        } else if (i > goalTextWordQueueValue) {
+                            formattedGoalTextArr.push({
+                                text: goalTextArr[j][i].text,
+                                validation: 'none',
+                            })
+                        } else {
+                            formattedGoalTextArr.push(
+                                goalTextArr[j][i]
+                            )
+                        }
                     }
                 }
             }
-
+            console.log("formattedGoalTextArr", formattedGoalTextArr)
+            //burası tamam doğru gönderiyor gibi
             dispatch(changeGoalTextDisplay(formattedGoalTextArr))
             // console.log("formattedgoaltext", formattedGoalTextArr)
         }
@@ -74,7 +83,7 @@ function UseActionArea() {
         dispatch(changeUserInputText(event.target.value))
         if (gameStatusValue == 'reset') {
             dispatch(changeGameStatus('playing'));
-            setTimeLeft(30)
+            setTimeLeft(160)
             console.log("handle girdi mi?")
         }
     }
