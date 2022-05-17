@@ -31,8 +31,9 @@ export const typingSpeedTextSlice = createSlice({
         goalTextWordQueue: 1,
         goalTextLineQueue: 1,
         userInputText: '',
-        userTime: 160,
+        userTime: 30,
         gameStatus: 'reset',
+        userInputControl: false,
     },
     reducers: {
         changeUserInputText: (state, action) => {
@@ -54,10 +55,13 @@ export const typingSpeedTextSlice = createSlice({
             state.goalTextLineQueue = action.payload;
         },
         checkUserInputControl: (state, action) => {
-            state.goalTextLineQueue = action.payload;
+            state.userInputControl = action.payload;
+        },
+        resetGoalText: (state, action) => {
+            state.goalText = action.payload;
         },
     }
 });
 
-export const { changeUserInputText, changeUserTime, changeGameStatus, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue } = typingSpeedTextSlice.actions;
+export const { changeUserInputText, changeUserTime, changeGameStatus, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, resetGoalText, checkUserInputControl } = typingSpeedTextSlice.actions;
 export default typingSpeedTextSlice.reducer;

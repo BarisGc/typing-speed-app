@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { changeUserInputText, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, changeGameStatus, changeUserTime, randomArrayMaker } from '../../redux/typingSpeedTextSlice'
+import { changeUserInputText, resetGoalText, changeGoalTextWordQueue, changeGoalTextLineQueue, changeGameStatus, changeUserTime, randomArrayMaker } from '../../redux/typingSpeedTextSlice'
 import { Modal, Button, ListGroup } from 'react-bootstrap'
 function ResultModal() {
   var numeral = require('numeral');
@@ -17,7 +17,7 @@ function ResultModal() {
   const handleResetModalButton = () => {
     dispatch(changeGameStatus('reset'));
     dispatch(changeUserTime(30));
-    dispatch(changeGoalTextDisplay(randomArrayMaker()))
+    dispatch(resetGoalText(randomArrayMaker()))
     dispatch(changeUserInputText(''))
     dispatch(changeGoalTextWordQueue(1))
     dispatch(changeGoalTextLineQueue(1))
@@ -25,17 +25,32 @@ function ResultModal() {
   }
 
   const dksCalculator = () => {
-    let enteredWords = goalTextArr.filter((element) => element.validation == 'false' || element.validation == 'true')
+
+    let enteredWords = []
+    goalTextArr.forEach((element) => {
+      return element.forEach((subElement) => {
+        if (subElement.validation == 'false' || subElement.validation == 'true') enteredWords.push(subElement)
+      })
+    })
     return enteredWords.length
   }
-
   const wrongWordEntryCalculator = () => {
-    let wrongEnteredWords = goalTextArr.filter((element) => element.validation == 'false')
+    let wrongEnteredWords = [];
+    goalTextArr.forEach((element) => {
+      return element.forEach((subElement) => {
+        if (subElement.validation == 'false') wrongEnteredWords.push(subElement)
+      })
+    })
     return wrongEnteredWords.length
   }
 
   const trueWordEntryCalculator = () => {
-    let trueEnteredWords = goalTextArr.filter((element) => element.validation == 'true')
+    let trueEnteredWords = [];
+    goalTextArr.forEach((element) => {
+      return element.forEach((subElement) => {
+        if (subElement.validation == 'true') trueEnteredWords.push(subElement)
+      })
+    })
     return trueEnteredWords.length
   }
 

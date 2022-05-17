@@ -4,11 +4,6 @@ import { Col, Row } from 'react-bootstrap'
 function GoalTextArea() {
   const goalTextArr = useSelector((state) => state.typingSpeedText.goalText);
   const goalTextLineQueueValue = useSelector((state) => state.typingSpeedText.goalTextLineQueue);
-  const goalTextWordQueueValue = useSelector((state) => state.typingSpeedText.goalTextWordQueue);
-
-  console.log("goatextArr", goalTextArr)
-  console.log("goalTextLineQueueValue", goalTextLineQueueValue)
-  console.log("goalTextWordQueueValue", goalTextWordQueueValue)
 
   // "textValidationDefiner" function
   const textValidationDefiner = (element) => {
@@ -96,7 +91,6 @@ function GoalTextArea() {
         {displayedGoalTextLine2Array.map((element, index) => (element))}
       </Row>
     </>
-
   )
 }
 

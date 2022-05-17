@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { changeUserInputText, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, changeGameStatus, changeUserTime, randomArrayMaker } from '../../redux/typingSpeedTextSlice'
+import { changeUserInputText, changeGoalTextDisplay, changeGoalTextWordQueue, changeGoalTextLineQueue, changeGameStatus, changeUserTime, randomArrayMaker, resetGoalText, checkUserInputControl } from '../../redux/typingSpeedTextSlice'
 import { InputGroup, FormControl, Button } from 'react-bootstrap'
 
 function UseActionArea() {
@@ -11,6 +11,8 @@ function UseActionArea() {
     const gameStatusValue = useSelector((state) => state.typingSpeedText.gameStatus);
     const goalTextWordQueueValue = useSelector((state) => state.typingSpeedText.goalTextWordQueue);
     const goalTextLineQueueValue = useSelector((state) => state.typingSpeedText.goalTextLineQueue);
+    const userInputControlValue = useSelector((state) => state.typingSpeedText.userInputControl);
+
     const [timeLeft, setTimeLeft] = useState(null);
 
     useEffect(() => {
@@ -19,80 +21,74 @@ function UseActionArea() {
             dispatch(changeGoalTextWordQueue(1))
         }
         let formattedGoalTextArr = []
-        if (userInputTextValue) {
-            if (userInputTextValue[userInputTextValue.length - 1] == ' ') {
-                for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
-                    for (let i = 0; i < goalTextArr[j].length; i++) {
-                        if (i == goalTextWordQueueValue - 1) {
-                            if (goalTextArr[j][i].text == (userInputTextValue.trim())) {
-                                formattedGoalTextArr.push({
-                                    text: goalTextArr[j][i].text,
-                                    validation: 'true',
-                                })
-                            } else {
-                                formattedGoalTextArr.push({
-                                    text: goalTextArr[j][i].text,
-                                    validation: 'false',
-                                })
-                            }
-                        } else if (i > goalTextWordQueueValue) {
+        if (userInputControlValue == true) {
+            dispatch(checkUserInputControl(false));
+            for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
+                for (let i = 0; i < goalTextArr[j].length; i++) {
+                    if (i == goalTextWordQueueValue - 1) {
+                        if (goalTextArr[j][i].text == (userInputTextValue.trim())) {
                             formattedGoalTextArr.push({
                                 text: goalTextArr[j][i].text,
-                                validation: 'none',
+                                validation: 'true',
                             })
                         } else {
-                            formattedGoalTextArr.push(
-                                goalTextArr[j][i]
-                            )
+                            formattedGoalTextArr.push({
+                                text: goalTextArr[j][i].text,
+                                validation: 'false',
+                            })
                         }
+                    } else if (i > goalTextWordQueueValue) {
+                        formattedGoalTextArr.push({
+                            text: goalTextArr[j][i].text,
+                            validation: 'none',
+                        })
+                    } else {
+                        formattedGoalTextArr.push(
+                            goalTextArr[j][i]
+                        )
                     }
                 }
                 dispatch(changeUserInputText(''))
                 dispatch(changeGoalTextWordQueue(goalTextWordQueueValue + 1))
-
-
-            } else {
-                for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
-                    for (let i = 0; i < goalTextArr[j].length; i++) {
-                        if (i == goalTextWordQueueValue - 1) {
-                            formattedGoalTextArr.push({
-                                text: goalTextArr[j][i].text,
-                                validation: 'checking',
-                            })
-                        } else if (i > goalTextWordQueueValue) {
-                            formattedGoalTextArr.push({
-                                text: goalTextArr[j][i].text,
-                                validation: 'none',
-                            })
-                        } else {
-                            formattedGoalTextArr.push(
-                                goalTextArr[j][i]
-                            )
-                        }
-                    }
-                }
             }
-            console.log("formattedGoalTextArr", formattedGoalTextArr)
-            //burası tamam doğru gönderiyor gibi
             dispatch(changeGoalTextDisplay(formattedGoalTextArr))
-            // console.log("formattedgoaltext", formattedGoalTextArr)
         }
-    }, [userInputTextValue])
+    }, [userInputControlValue])
 
     const handleUserInputText = (event) => {
         dispatch(changeUserInputText(event.target.value))
+        let formattedGoalTextArr = [];
+        for (let j = goalTextLineQueueValue - 1; j < goalTextLineQueueValue; j++) {
+            for (let i = 0; i < goalTextArr[j].length; i++) {
+                if (i == goalTextWordQueueValue - 1) {
+                    formattedGoalTextArr.push({
+                        text: goalTextArr[j][i].text,
+                        validation: 'checking',
+                    })
+                } else {
+                    formattedGoalTextArr.push(
+                        goalTextArr[j][i]
+                    )
+                }
+            }
+        }
+        dispatch(changeGoalTextDisplay(formattedGoalTextArr))
         if (gameStatusValue == 'reset') {
             dispatch(changeGameStatus('playing'));
-            setTimeLeft(160)
-            console.log("handle girdi mi?")
+            setTimeLeft(30)
         }
     }
+
+    const onKeyUp = (event) => {
+        if (event.code == "Space") {
+            dispatch(checkUserInputControl(true));
+        }
+    };
 
     // Game Time
     useEffect(() => {
         if (gameStatusValue == 'playing') {
             if (timeLeft === 0) {
-                console.log("TIME LEFT IS 0");
                 dispatch(changeGameStatus('finished'));
                 setTimeLeft(null)
             }
@@ -117,7 +113,7 @@ function UseActionArea() {
     const handleResetButton = () => {
         dispatch(changeGameStatus('reset'));
         dispatch(changeUserTime(30));
-        dispatch(changeGoalTextDisplay(randomArrayMaker()))
+        dispatch(resetGoalText(randomArrayMaker()))
         dispatch(changeUserInputText(''))
         dispatch(changeGoalTextWordQueue(1))
         dispatch(changeGoalTextLineQueue(1))
@@ -131,6 +127,7 @@ function UseActionArea() {
                     placeholder="Press Space to Check the Word"
                     value={userInputTextValue}
                     onChange={(event) => handleUserInputText(event)}
+                    onKeyUp={onKeyUp}
                 />
                 <InputGroup.Text className={
                     `${userTimeValue < 10 ? 'bg-warning' : 'bg-primary'} text-white border-0`
