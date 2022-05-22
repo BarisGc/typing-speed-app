@@ -1,5 +1,4 @@
-# Project Name: *
-typing-speed-app* 
+# Project Name:typing-speed-app
 ### Project Deployment:
 Please, click > [Netlify](https://typing-speed-checker-app-barisd.netlify.app)
 ### Frameworks/Libraries:
