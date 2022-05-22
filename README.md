@@ -3,7 +3,6 @@
 Please, click > [Netlify](https://typing-speed-checker-app-barisd.netlify.app)
 ### Frameworks/Libraries:
 - React, React-Redux, Redux-Toolkit, React-Bootstrap, shuffle-array, numeral
-- Postman, VS Code
 ### Mobile-Responsive:
 - Yes
 ### Git Log:
